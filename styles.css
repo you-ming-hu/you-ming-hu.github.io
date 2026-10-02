@@ -18,14 +18,13 @@ button,a{-webkit-tap-highlight-color:transparent}
 .floating-nav .contact-nav:hover,.floating-nav .contact-nav[aria-current=page]{background:#3b3b3b}
 .page-section{padding-block:110px;border-bottom:1px solid var(--line)}
 main h1{opacity:0;transform:translateY(12px)}
-.portrait,.about-profile>.eyebrow,.intro-copy,.button-row,.education-section,.skills-section,.section-heading>.eyebrow,.resume-heading .eyebrow,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{opacity:0;transform:translateY(8px)}
+.portrait,.about-section>.eyebrow,.intro-copy,.button-row,.section-heading>.eyebrow,.resume-heading .eyebrow,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{opacity:0;transform:translateY(8px)}
 html.title-ready main h1{animation:title-in 260ms cubic-bezier(.2,.75,.2,1) both}
-html.content-ready .portrait,html.content-ready .about-profile>.eyebrow,html.content-ready .intro-copy,html.content-ready .button-row,html.content-ready .education-section,html.content-ready .skills-section,html.content-ready .section-heading>.eyebrow,html.content-ready .resume-heading .eyebrow,html.content-ready .experience-list,html.content-ready .section-intro,html.content-ready .project-instruction,html.content-ready .project-list,html.content-ready .resume-heading .button,html.content-ready .resume-viewer,html.content-ready .contact-list,html.content-ready footer{animation:content-in 420ms cubic-bezier(.4,0,.2,1) both}
-html.page-leaving main h1,html.page-leaving .portrait,html.page-leaving .about-profile>.eyebrow,html.page-leaving .intro-copy,html.page-leaving .button-row,html.page-leaving .education-section,html.page-leaving .skills-section,html.page-leaving .section-heading>.eyebrow,html.page-leaving .resume-heading .eyebrow,html.page-leaving .experience-list,html.page-leaving .section-intro,html.page-leaving .project-instruction,html.page-leaving .project-list,html.page-leaving .resume-heading .button,html.page-leaving .resume-viewer,html.page-leaving .contact-list,html.page-leaving footer{animation:none;opacity:0;transition:opacity 30ms linear}
+html.content-ready .portrait,html.content-ready .about-section>.eyebrow,html.content-ready .intro-copy,html.content-ready .button-row,html.content-ready .section-heading>.eyebrow,html.content-ready .resume-heading .eyebrow,html.content-ready .experience-list,html.content-ready .section-intro,html.content-ready .project-instruction,html.content-ready .project-list,html.content-ready .resume-heading .button,html.content-ready .resume-viewer,html.content-ready .contact-list,html.content-ready footer{animation:content-in 420ms cubic-bezier(.4,0,.2,1) both}
+html.page-leaving main h1,html.page-leaving .portrait,html.page-leaving .about-section>.eyebrow,html.page-leaving .intro-copy,html.page-leaving .button-row,html.page-leaving .section-heading>.eyebrow,html.page-leaving .resume-heading .eyebrow,html.page-leaving .experience-list,html.page-leaving .section-intro,html.page-leaving .project-instruction,html.page-leaving .project-list,html.page-leaving .resume-heading .button,html.page-leaving .resume-viewer,html.page-leaving .contact-list,html.page-leaving footer{animation:none;opacity:0;transition:opacity 30ms linear}
 .standalone-section{min-height:calc(100vh - 70px);padding-top:155px}
 .content-error{margin-top:110px;padding:18px;border:1px solid #c02626;border-radius:12px;background:#fff5f5;color:#991b1b;overflow-wrap:anywhere}
-.about-section{min-height:100vh;text-align:center;padding:145px 24px 90px}
-.about-profile{display:flex;flex-direction:column;align-items:center;max-width:820px;margin-inline:auto}
+.about-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:145px 24px 90px}
 .portrait{width:180px;height:180px;margin-bottom:28px;border:1px solid var(--line);border-radius:50%;overflow:hidden;background:var(--soft);display:grid;place-items:center}
 .portrait img{width:100%;height:100%;object-fit:cover}
 .portrait span{font-size:42px;font-weight:600;letter-spacing:-.04em;color:#888}
@@ -34,21 +33,10 @@ h1,h2,h3,p{overflow-wrap:anywhere}
 h1{font-size:clamp(38px,6vw,62px);line-height:1.14;letter-spacing:-.012em;margin:0 0 24px;font-weight:500}
 h2{font-size:clamp(34px,5vw,48px);line-height:1.17;letter-spacing:-.01em;margin:0;font-weight:500}
 .page-title{font-size:clamp(42px,6vw,62px);margin:0}
-.intro-copy{max-width:780px;font-size:18px;line-height:1.62}
+.intro-copy{max-width:780px;font-size:17px}
 .button-row{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:26px}
 .button{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:9px 18px;border:1px solid var(--ink);border-radius:8px;text-decoration:none;font-size:14px;font-weight:600}
 .dark-button{background:var(--ink);color:#fff}
-.about-subsection{width:min(980px,100%);margin:70px auto 0;text-align:left}
-.about-subsection>h2{text-align:center;margin-bottom:24px;font-size:clamp(26px,3.5vw,34px);line-height:1.2;font-weight:500}
-.education-list{display:grid;gap:14px}
-.education-card{position:relative;padding:24px 28px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
-.education-card h3,.skill-card h3{margin:0;font-size:17px;line-height:1.3;font-weight:500}
-.education-study{margin:7px 0 0;color:var(--muted);font-size:14px}
-.education-period{margin:8px 0 0;font-size:12px;color:var(--muted)}
-.skills-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.skill-card{min-height:190px;padding:24px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
-.skill-card ul{margin:14px 0 0;padding-left:1.2em;color:var(--muted);font-size:14px;line-height:1.5}
-.skill-card li+li{margin-top:7px}
 .section-heading{margin-bottom:42px}
 .centered-heading{text-align:center;max-width:790px;margin-inline:auto}
 .section-intro{margin-top:22px}
@@ -119,8 +107,6 @@ footer{display:flex;justify-content:space-between;gap:24px;padding-block:28px;co
 .floating-nav a{padding:8px 3px;font-size:12px;text-align:center}
 .page-section{padding-block:80px}
 .about-section{padding-top:120px}
-.about-subsection{margin-top:52px}
-.skills-list{grid-template-columns:1fr}
 .portrait{width:145px;height:145px}
 .project-toggle{grid-template-columns:1fr}
 .project-preview{min-height:210px}
@@ -133,5 +119,5 @@ footer{display:flex;justify-content:space-between;gap:24px;padding-block:28px;co
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}
 .experience-card,.project-card,.project-expanded,.project-expanded-inner,.project-open-button,.project-open-button::after{transition:none}
-main h1,.portrait,.about-profile>.eyebrow,.intro-copy,.button-row,.education-section,.skills-section,.section-heading>.eyebrow,.resume-heading .eyebrow,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{animation:none;opacity:1;transform:none;transition:none}
+main h1,.portrait,.about-section>.eyebrow,.intro-copy,.button-row,.section-heading>.eyebrow,.resume-heading .eyebrow,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{animation:none;opacity:1;transform:none;transition:none}
 }

@@ -70,7 +70,7 @@ function revealPage() {
     if (navigator.connection?.saveData) return;
     document.querySelectorAll('#site-navigation a:not([aria-current=page])').forEach(anchor => { const hint = document.createElement('link'); hint.rel = 'prefetch'; hint.href = anchor.href; document.head.append(hint); });
     try {
-      const smallFiles = ['materials/introduction.json','materials/links.json','materials/education.json','materials/skills.json','materials/experience.json','materials/projects/overview.json','materials/resume.json'];
+      const smallFiles = ['materials/introduction.json','materials/links.json','materials/experience.json','materials/projects/overview.json','materials/resume.json'];
       await Promise.all(smallFiles.map(path => fetch(fromRoot(path))));
       const indexResponse = await fetch(fromRoot('materials/projects/index.json'));
       if (!indexResponse.ok) return;
@@ -96,15 +96,13 @@ function revealTitle() {
 function validateIntro(intro) { for (const key of ['name','title']) requireText(intro[key], `materials/introduction.json → ${key}`); if (intro.photo && !intro.photo.startsWith('TODO:')) safeURL(intro.photo, 'materials/introduction.json → photo'); }
 function validateLinks(links) { requireArray(links, 'materials/links.json'); links.forEach((link, i) => { const field = `materials/links.json → item ${i + 1}`; requireText(link.label, `${field}.label`); requireText(link.url, `${field}.url`); if (!link.url.startsWith('TODO:')) safeURL(link.url, `${field}.url`, true); }); }
 
-async function renderAbout(intro, [links, education, skills]) {
+async function renderAbout(intro, links) {
   validateLinks(links); requireRichText(intro.bio, 'materials/introduction.json → bio');
   $('profile-name').textContent = intro.name; revealTitle();
   intro.bio = await resolveRichText(intro.bio, 'materials/introduction.json → bio');
   $('profile-role').textContent = intro.title; $('profile-bio').replaceChildren(...richText(intro.bio).childNodes); $('profile-initials').textContent = initials(intro.name);
   if (intro.photo && !intro.photo.startsWith('TODO:')) { $('profile-photo').src = fromRoot(intro.photo); $('profile-photo').alt = `Portrait of ${intro.name}`; $('profile-photo').hidden = false; $('profile-initials').hidden = true; }
-  const featured = new Set(['github']); for (const item of links.filter(link => !link.url.startsWith('TODO:') && featured.has(link.label.toLowerCase()))) { const a = make('a', 'button dark-button', item.label); a.href = normalizeLink(item.url); a.target = '_blank'; a.rel = 'noopener noreferrer'; $('profile-actions').append(a); }
-  requireArray(education, 'materials/education.json'); education.forEach((item,i)=>{const field=`materials/education.json → item ${i+1}`;for(const key of ['institution','department','degree'])requireText(item[key],`${field}.${key}`);const card=make('article','education-card');card.append(make('h3','',item.institution),make('p','education-study',[item.department,item.degree].join(' · ')));if(item.period)card.append(make('p','education-period',item.period));$('education-list').append(card)});
-  requireArray(skills, 'materials/skills.json'); skills.forEach((group,i)=>{const field=`materials/skills.json → item ${i+1}`;requireText(group.title,`${field}.title`);requireArray(group.items,`${field}.items`);const card=make('article','skill-card');card.append(make('h3','',group.title));const list=document.createElement('ul');group.items.forEach((item,j)=>{requireText(item,`${field}.items[${j}]`);list.append(make('li','',item))});card.append(list);$('skills-list').append(card)});
+  const featured = new Set(['linkedin','github']); for (const item of links.filter(link => !link.url.startsWith('TODO:') && featured.has(link.label.toLowerCase()))) { const a = make('a', 'button dark-button', item.label); a.href = normalizeLink(item.url); a.target = '_blank'; a.rel = 'noopener noreferrer'; $('profile-actions').append(a); }
 }
 
 async function renderExperience(items) {
@@ -144,7 +142,7 @@ async function start() {
   renderNavigation(); enablePageNavigation();
   if (pageName !== 'about') revealTitle();
   const introPromise = readJSON('materials/introduction.json');
-  const pageDataPromise = pageName === 'about' ? Promise.all([readJSON('materials/links.json'),readJSON('materials/education.json'),readJSON('materials/skills.json')]) : pageName === 'contact' ? readJSON('materials/links.json') : pageName === 'experience' ? readJSON('materials/experience.json') : pageName === 'projects' ? Promise.all([readJSON('materials/projects/overview.json'), readProjects()]) : pageName === 'resume' ? readJSON('materials/resume.json') : Promise.reject(new Error(`Unknown page: ${pageName}`));
+  const pageDataPromise = pageName === 'about' || pageName === 'contact' ? readJSON('materials/links.json') : pageName === 'experience' ? readJSON('materials/experience.json') : pageName === 'projects' ? Promise.all([readJSON('materials/projects/overview.json'), readProjects()]) : pageName === 'resume' ? readJSON('materials/resume.json') : Promise.reject(new Error(`Unknown page: ${pageName}`));
   const intro = await introPromise; validateIntro(intro); renderChrome(intro); if(pageName==='about'){$('profile-name').textContent=intro.name;revealTitle()}
   const pageData = await pageDataPromise;
   if(pageName==='about')await renderAbout(intro,pageData);else if(pageName==='experience')await renderExperience(pageData);else if(pageName==='projects')await renderProjects(pageData);else if(pageName==='resume')await renderResume(intro,pageData);else if(pageName==='contact')await renderContact(pageData);
