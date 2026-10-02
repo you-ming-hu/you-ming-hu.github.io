@@ -3,6 +3,8 @@
 const $ = id => document.getElementById(id);
 const pageName = document.documentElement.dataset.page;
 const rootPath = document.documentElement.dataset.root || '.';
+const titleHalfwayMs = 130;
+let titleRevealTime = 0;
 const make = (tag, className, value) => { const el = document.createElement(tag); if (className) el.className = className; if (value !== undefined) el.textContent = value; return el; };
 const fromRoot = path => /^(?:https?:|mailto:|tel:|#)/i.test(path) ? path : `${rootPath}/${path}`.replace(/^\.\/\.\//, './');
 
@@ -61,7 +63,9 @@ function enablePageNavigation() {
 }
 
 function revealPage() {
-  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('content-ready')));
+  const showContent = () => requestAnimationFrame(() => document.documentElement.classList.add('content-ready'));
+  const remaining = Math.max(0, titleRevealTime + titleHalfwayMs - performance.now());
+  window.setTimeout(showContent, remaining);
   const warmCache = async () => {
     if (navigator.connection?.saveData) return;
     document.querySelectorAll('#site-navigation a:not([aria-current=page])').forEach(anchor => { const hint = document.createElement('link'); hint.rel = 'prefetch'; hint.href = anchor.href; document.head.append(hint); });
@@ -84,6 +88,8 @@ function revealPage() {
 }
 
 function revealTitle() {
+  if (titleRevealTime) return;
+  titleRevealTime = performance.now();
   requestAnimationFrame(() => document.documentElement.classList.add('title-ready'));
 }
 
