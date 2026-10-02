@@ -41,6 +41,24 @@ function renderChrome(intro) {
   document.title = `${pages.find(item => item[0] === pageName)?.[1] || 'Portfolio'} · ${intro.name}`; document.querySelector('meta[name=description]').content = `${intro.name} — ${intro.title}`;
 }
 
+function enablePageNavigation() {
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  for (const link of document.querySelectorAll('#site-navigation a')) {
+    link.addEventListener('click', event => {
+      if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || reducedMotion.matches) return;
+      const destination = new URL(link.href, location.href);
+      if (destination.origin !== location.origin || destination.href === location.href) return;
+      event.preventDefault();
+      document.documentElement.classList.add('page-leaving');
+      window.setTimeout(() => { location.href = destination.href; }, 120);
+    });
+  }
+}
+
+function revealPage() {
+  requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('content-ready')));
+}
+
 function validateIntro(intro) { for (const key of ['name','title']) requireText(intro[key], `materials/introduction.json → ${key}`); if (intro.photo && !intro.photo.startsWith('TODO:')) safeURL(intro.photo, 'materials/introduction.json → photo'); }
 function validateLinks(links) { requireArray(links, 'materials/links.json'); links.forEach((link, i) => { const field = `materials/links.json → item ${i + 1}`; requireText(link.label, `${field}.label`); requireText(link.url, `${field}.url`); if (!link.url.startsWith('TODO:')) safeURL(link.url, `${field}.url`, true); }); }
 
@@ -84,5 +102,5 @@ async function renderResume(intro) { const resume=await readJSON('materials/resu
 
 async function renderContact() { const links=await readJSON('materials/links.json');validateLinks(links);for(const item of links.filter(link=>!link.url.startsWith('TODO:')&&!['résumé','resume'].includes(link.label.toLowerCase()))){const a=make('a','contact-item');a.href=normalizeLink(item.url);if(/^https?:/i.test(a.href)){a.target='_blank';a.rel='noopener noreferrer'}a.append(make('span','contact-label',item.label),make('span','contact-value',item.display||displayLink(item.url)));$('contact-list').append(a)} }
 
-async function start() { const intro=await readJSON('materials/introduction.json');validateIntro(intro);renderChrome(intro);if(pageName==='about')await renderAbout(intro);else if(pageName==='experience')await renderExperience();else if(pageName==='projects')await renderProjects();else if(pageName==='resume')await renderResume(intro);else if(pageName==='contact')await renderContact();else throw new Error(`Unknown page: ${pageName}`); }
-start().catch(error=>{const loading=$('profile-name');if(loading)loading.textContent='Content needs attention';$('content-error').textContent=error.message;$('content-error').hidden=false;console.error(error)});
+async function start() { const intro=await readJSON('materials/introduction.json');validateIntro(intro);renderChrome(intro);if(pageName==='about')await renderAbout(intro);else if(pageName==='experience')await renderExperience();else if(pageName==='projects')await renderProjects();else if(pageName==='resume')await renderResume(intro);else if(pageName==='contact')await renderContact();else throw new Error(`Unknown page: ${pageName}`);enablePageNavigation();revealPage(); }
+start().catch(error=>{const loading=$('profile-name');if(loading)loading.textContent='Content needs attention';$('content-error').textContent=error.message;$('content-error').hidden=false;revealPage();console.error(error)});
