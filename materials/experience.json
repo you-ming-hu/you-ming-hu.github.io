@@ -1,0 +1,14 @@
+[
+  {
+    "role": "TODO: Your current or most recent role",
+    "company": "TODO: Company",
+    "period": "TODO: Start \u2014 Present",
+    "description": "TODO: Summarize your responsibilities and one contribution."
+  },
+  {
+    "role": "TODO: Your previous role",
+    "company": "TODO: Company",
+    "period": "TODO: Start \u2014 End",
+    "description": "TODO: Describe the work and outcomes you are permitted to share."
+  }
+]

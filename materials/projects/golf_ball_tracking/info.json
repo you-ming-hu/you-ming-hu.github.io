@@ -1,0 +1,28 @@
+{
+    "title": "TODO: Golf ball tracking",
+    "tab": "Golf ball tracking",
+    "category": "TODO: Project category",
+    "period": "TODO: Project dates",
+    "preview": {
+      "src": "TODO: materials/projects/golf_ball_tracking/preview.jpg",
+      "title": "TODO: Describe the preview image"
+    },
+    "summary": "TODO: Describe the project and why it matters.",
+    "tags": [
+      "TODO: Your role",
+      "TODO: Key skill"
+    ],
+    "challenge": {
+      "markdown": "materials/projects/golf_ball_tracking/challenge.md"
+    },
+    "contribution": "TODO: Describe what you personally built, changed, or led.",
+    "result": "TODO: Describe the outcome using approved evidence.",
+    "media": [
+      {
+        "type": "iframe",
+        "src": "materials/projects/golf_ball_tracking/example.html",
+        "title": "Interactive chart demonstration",
+        "caption": "Plotly demonstration \u00b7 Synthetic data, not a professional accomplishment."
+      }
+    ]
+}

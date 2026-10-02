@@ -1,20 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="en" data-page="about" data-root=".">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Your Name</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 4rem auto; padding: 0 1rem; line-height: 1.6; }
-    a { color: #0969da; }
-  </style>
+  <meta name="description" content="Professional portfolio">
+  <title>About · Portfolio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231c1c1c'/%3E%3Cpath d='M9 23V9h7a5 5 0 0 1 0 10h-3' fill='none' stroke='white' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="vendor/marked/marked.umd.js" defer></script>
+  <script src="main.js" defer></script>
 </head>
 <body>
-  <h1>Hi, I'm Your Name</h1>
-  <p>A short intro about what you do.</p>
-  <ul>
-    <li><a href="https://github.com/your-username">GitHub</a></li>
-    <li><a href="polished/">My polished project</a></li>
-  </ul>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header id="site-navigation" class="floating-nav"></header>
+  <main id="main"><p id="content-error" class="content-error page-width" role="alert" hidden></p><section id="about" class="page-section about-section" aria-labelledby="profile-name"><div class="portrait" aria-hidden="true"><img id="profile-photo" alt="" hidden><span id="profile-initials"></span></div><p id="profile-role" class="eyebrow"></p><h1 id="profile-name">Loading profile…</h1><div id="profile-bio" class="rich-text intro-copy"></div><div id="profile-actions" class="button-row"></div></section></main>
+  <footer id="site-footer" class="page-width"></footer>
+  <noscript><p class="page-width">Enable JavaScript to view this portfolio.</p></noscript>
 </body>
 </html>

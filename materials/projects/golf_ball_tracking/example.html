@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Synthetic data · Interactive chart</title><style>body{margin:0;font:14px system-ui;color:#647084}#chart{width:100%;height:380px}#status{padding:20px}table{border-collapse:collapse;margin:20px}td,th{padding:5px 14px;text-align:left}</style></head><body><div id="status" role="status">Loading interactive chart…</div><div id="chart" aria-label="Synthetic chart comparing baseline and example processing time"></div><script>
+const script = document.createElement('script'); script.src = 'https://cdn.plot.ly/plotly-4.1.1.min.js';
+script.onload = () => {
+ document.getElementById('status').hidden = true;
+ Plotly.newPlot('chart', [
+ {x:[1,2,3,4,5,6],y:[48,58,72,85,101,119],name:'Baseline (synthetic)',mode:'lines+markers',line:{color:'#a2adbd',width:2}},
+ {x:[1,2,3,4,5,6],y:[40,45,53,61,70,79],name:'Example (synthetic)',mode:'lines+markers',line:{color:'#2458cf',width:3}}
+ ], {autosize:true,margin:{t:45,b:65,l:65,r:25},font:{family:'system-ui',color:'#647084',size:12},paper_bgcolor:'#ffffff',plot_bgcolor:'#ffffff',xaxis:{title:{text:'Workload (synthetic units)'},gridcolor:'#edf0f5',zeroline:false},yaxis:{title:{text:'Processing time (ms)'},gridcolor:'#edf0f5',zeroline:false},legend:{orientation:'h',x:0,y:1.16},hovermode:'x unified'}, {responsive:true,displaylogo:false,scrollZoom:false});
+};
+script.onerror = () => { document.getElementById('chart').hidden = true; document.getElementById('status').textContent = 'Interactive chart could not load. Check your internet connection and reload. Synthetic sample values are shown below.'; const table = document.createElement('table'); table.innerHTML = '<tr><th>Workload</th><th>Baseline (ms)</th><th>Example (ms)</th></tr>' + [48,58,72,85,101,119].map((v,i)=>`<tr><td>${i+1}</td><td>${v}</td><td>${[40,45,53,61,70,79][i]}</td></tr>`).join(''); document.body.append(table); };
+document.head.append(script);
+</script></body></html>
