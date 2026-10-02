@@ -17,9 +17,11 @@ button,a{-webkit-tap-highlight-color:transparent}
 .floating-nav .contact-nav{background:var(--ink);color:#fff}
 .floating-nav .contact-nav:hover,.floating-nav .contact-nav[aria-current=page]{background:#3b3b3b}
 .page-section{padding-block:110px;border-bottom:1px solid var(--line)}
-main,footer{opacity:0}
-html.content-ready main,html.content-ready footer{animation:content-in 130ms cubic-bezier(.2,.7,.2,1) both}
-html.page-leaving main,html.page-leaving footer{animation:none;opacity:0;transition:opacity 30ms linear}
+main h1{opacity:0;transform:translateY(12px)}
+.portrait,.about-section>.eyebrow,.intro-copy,.button-row,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{opacity:0}
+html.title-ready main h1{animation:title-in 260ms cubic-bezier(.2,.75,.2,1) both}
+html.content-ready .portrait,html.content-ready .about-section>.eyebrow,html.content-ready .intro-copy,html.content-ready .button-row,html.content-ready .experience-list,html.content-ready .section-intro,html.content-ready .project-instruction,html.content-ready .project-list,html.content-ready .resume-heading .button,html.content-ready .resume-viewer,html.content-ready .contact-list,html.content-ready footer{animation:content-in 130ms cubic-bezier(.2,.7,.2,1) both}
+html.page-leaving main h1,html.page-leaving .portrait,html.page-leaving .about-section>.eyebrow,html.page-leaving .intro-copy,html.page-leaving .button-row,html.page-leaving .experience-list,html.page-leaving .section-intro,html.page-leaving .project-instruction,html.page-leaving .project-list,html.page-leaving .resume-heading .button,html.page-leaving .resume-viewer,html.page-leaving .contact-list,html.page-leaving footer{animation:none;opacity:0;transition:opacity 30ms linear}
 .standalone-section{min-height:calc(100vh - 70px);padding-top:155px}
 .content-error{margin-top:110px;padding:18px;border:1px solid #c02626;border-radius:12px;background:#fff5f5;color:#991b1b;overflow-wrap:anywhere}
 .about-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:145px 24px 90px}
@@ -91,6 +93,7 @@ h2{font-size:clamp(34px,5vw,50px);line-height:1.1;letter-spacing:-.04em;margin:0
 .rich-text h3,.rich-text h4,.rich-text h5,.rich-text h6{color:var(--ink);margin:1em 0 .4em}
 footer{display:flex;justify-content:space-between;gap:24px;padding-block:28px;color:var(--muted);font-size:13px}
 @keyframes content-in{from{opacity:0}to{opacity:1}}
+@keyframes title-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:760px){html{scroll-padding-top:90px}
 .page-width{width:min(100% - 32px,980px)}
 .floating-nav{top:12px;width:calc(100% - 24px);overflow-x:auto}
@@ -110,7 +113,5 @@ footer{display:flex;justify-content:space-between;gap:24px;padding-block:28px;co
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}
 .experience-card{transition:none}
-main{animation:none}
-footer{animation:none}
-main,footer{opacity:1;transition:none}
+main h1,.portrait,.about-section>.eyebrow,.intro-copy,.button-row,.experience-list,.section-intro,.project-instruction,.project-list,.resume-heading .button,.resume-viewer,.contact-list,footer{animation:none;opacity:1;transform:none;transition:none}
 }

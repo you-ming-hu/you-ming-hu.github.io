@@ -83,12 +83,18 @@ function revealPage() {
   if ('requestIdleCallback' in window) requestIdleCallback(warmCache, { timeout: 1000 }); else window.setTimeout(warmCache, 350);
 }
 
+function revealTitle() {
+  requestAnimationFrame(() => document.documentElement.classList.add('title-ready'));
+}
+
 function validateIntro(intro) { for (const key of ['name','title']) requireText(intro[key], `materials/introduction.json → ${key}`); if (intro.photo && !intro.photo.startsWith('TODO:')) safeURL(intro.photo, 'materials/introduction.json → photo'); }
 function validateLinks(links) { requireArray(links, 'materials/links.json'); links.forEach((link, i) => { const field = `materials/links.json → item ${i + 1}`; requireText(link.label, `${field}.label`); requireText(link.url, `${field}.url`); if (!link.url.startsWith('TODO:')) safeURL(link.url, `${field}.url`, true); }); }
 
 async function renderAbout(intro, links) {
-  validateLinks(links); requireRichText(intro.bio, 'materials/introduction.json → bio'); intro.bio = await resolveRichText(intro.bio, 'materials/introduction.json → bio');
-  $('profile-name').textContent = intro.name; $('profile-role').textContent = intro.title; $('profile-bio').replaceChildren(...richText(intro.bio).childNodes); $('profile-initials').textContent = initials(intro.name);
+  validateLinks(links); requireRichText(intro.bio, 'materials/introduction.json → bio');
+  $('profile-name').textContent = intro.name; revealTitle();
+  intro.bio = await resolveRichText(intro.bio, 'materials/introduction.json → bio');
+  $('profile-role').textContent = intro.title; $('profile-bio').replaceChildren(...richText(intro.bio).childNodes); $('profile-initials').textContent = initials(intro.name);
   if (intro.photo && !intro.photo.startsWith('TODO:')) { $('profile-photo').src = fromRoot(intro.photo); $('profile-photo').alt = `Portrait of ${intro.name}`; $('profile-photo').hidden = false; $('profile-initials').hidden = true; }
   const featured = new Set(['linkedin','github']); for (const item of links.filter(link => !link.url.startsWith('TODO:') && featured.has(link.label.toLowerCase()))) { const a = make('a', 'button dark-button', item.label); a.href = normalizeLink(item.url); a.target = '_blank'; a.rel = 'noopener noreferrer'; $('profile-actions').append(a); }
 }
@@ -128,10 +134,11 @@ async function renderContact(links) { validateLinks(links);for(const item of lin
 
 async function start() {
   renderNavigation(); enablePageNavigation();
+  if (pageName !== 'about') revealTitle();
   const introPromise = readJSON('materials/introduction.json');
   const pageDataPromise = pageName === 'about' || pageName === 'contact' ? readJSON('materials/links.json') : pageName === 'experience' ? readJSON('materials/experience.json') : pageName === 'projects' ? Promise.all([readJSON('materials/projects/overview.json'), readProjects()]) : pageName === 'resume' ? readJSON('materials/resume.json') : Promise.reject(new Error(`Unknown page: ${pageName}`));
   const [intro, pageData] = await Promise.all([introPromise, pageDataPromise]); validateIntro(intro); renderChrome(intro);
   if(pageName==='about')await renderAbout(intro,pageData);else if(pageName==='experience')await renderExperience(pageData);else if(pageName==='projects')await renderProjects(pageData);else if(pageName==='resume')await renderResume(intro,pageData);else if(pageName==='contact')await renderContact(pageData);
   revealPage();
 }
-start().catch(error=>{const loading=$('profile-name');if(loading)loading.textContent='Content needs attention';$('content-error').textContent=error.message;$('content-error').hidden=false;revealPage();console.error(error)});
+start().catch(error=>{const loading=$('profile-name');if(loading)loading.textContent='Content needs attention';revealTitle();$('content-error').textContent=error.message;$('content-error').hidden=false;revealPage();console.error(error)});
