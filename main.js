@@ -15,8 +15,8 @@ function normalizeLink(value) { if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) re
 function displayLink(value) { return value.replace(/^mailto:/i, '').replace(/^tel:/i, '').replace(/^https?:\/\//i, '').replace(/\/$/, ''); }
 function initials(name) { return name.replace(/\([^)]*\)/g, '').split(/[\s,]+/).filter(Boolean).slice(0, 2).map(word => word[0]).join('').toUpperCase(); }
 
-async function readJSON(path) { const url = fromRoot(path); let response; try { response = await fetch(url, { cache: 'no-store' }); } catch { throw new Error(`Cannot read ${path}. Open the repository through VS Code Live Server.`); } if (!response.ok) throw new Error(`Cannot load ${path} (HTTP ${response.status}).`); try { return await response.json(); } catch { throw new Error(`${path}: invalid JSON. Check commas, quotation marks, and brackets.`); } }
-async function readText(path) { const url = fromRoot(path); let response; try { response = await fetch(url, { cache: 'no-store' }); } catch { throw new Error(`Cannot read ${path}. Open the repository through VS Code Live Server.`); } if (!response.ok) throw new Error(`Cannot load ${path} (HTTP ${response.status}).`); return response.text(); }
+async function readJSON(path) { const url = fromRoot(path); let response; try { response = await fetch(url); } catch { throw new Error(`Cannot read ${path}. Open the repository through VS Code Live Server.`); } if (!response.ok) throw new Error(`Cannot load ${path} (HTTP ${response.status}).`); try { return await response.json(); } catch { throw new Error(`${path}: invalid JSON. Check commas, quotation marks, and brackets.`); } }
+async function readText(path) { const url = fromRoot(path); let response; try { response = await fetch(url); } catch { throw new Error(`Cannot read ${path}. Open the repository through VS Code Live Server.`); } if (!response.ok) throw new Error(`Cannot load ${path} (HTTP ${response.status}).`); return response.text(); }
 
 function sanitizeMarkdown(source) {
   if (!window.marked?.parse) throw new Error('The local Markdown renderer could not load.');
@@ -33,12 +33,17 @@ function sanitizeMarkdown(source) {
 async function resolveRichText(value, field) { requireRichText(value, field); return typeof value === 'string' ? value : { fragment: sanitizeMarkdown(await readText(value.markdown)) }; }
 function richText(value, className = '') { const el = make('div', `rich-text${className ? ` ${className}` : ''}`); if (typeof value === 'string') el.textContent = value; else el.append(value.fragment.cloneNode(true)); return el; }
 
-function renderChrome(intro) {
+function renderNavigation() {
   const pages = [['about','About',`${rootPath}/`],['experience','Experience',`${rootPath}/experience/`],['projects','Projects',`${rootPath}/projects/`],['resume','Résumé',`${rootPath}/resume/`],['contact','Contact',`${rootPath}/contact/`]];
   const nav = make('nav'); nav.setAttribute('aria-label', 'Main navigation');
   for (const [id, label, href] of pages) { const link = make('a', id === 'contact' ? 'contact-nav' : '', label); link.href = href; if (id === pageName) link.setAttribute('aria-current', 'page'); nav.append(link); }
-  $('site-navigation').append(nav); $('site-footer').append(make('span', '', intro.name), make('span', '', `© ${new Date().getFullYear()}`));
-  document.title = `${pages.find(item => item[0] === pageName)?.[1] || 'Portfolio'} · ${intro.name}`; document.querySelector('meta[name=description]').content = `${intro.name} — ${intro.title}`;
+  $('site-navigation').append(nav);
+}
+
+function renderChrome(intro) {
+  const labels = { about: 'About', experience: 'Experience', projects: 'Projects', resume: 'Résumé', contact: 'Contact' };
+  $('site-footer').append(make('span', '', intro.name), make('span', '', `© ${new Date().getFullYear()}`));
+  document.title = `${labels[pageName] || 'Portfolio'} · ${intro.name}`; document.querySelector('meta[name=description]').content = `${intro.name} — ${intro.title}`;
 }
 
 function enablePageNavigation() {
@@ -50,27 +55,46 @@ function enablePageNavigation() {
       if (destination.origin !== location.origin || destination.href === location.href) return;
       event.preventDefault();
       document.documentElement.classList.add('page-leaving');
-      window.setTimeout(() => { location.href = destination.href; }, 120);
+      window.setTimeout(() => { location.href = destination.href; }, 30);
     });
   }
 }
 
 function revealPage() {
   requestAnimationFrame(() => requestAnimationFrame(() => document.documentElement.classList.add('content-ready')));
+  const warmCache = async () => {
+    if (navigator.connection?.saveData) return;
+    document.querySelectorAll('#site-navigation a:not([aria-current=page])').forEach(anchor => { const hint = document.createElement('link'); hint.rel = 'prefetch'; hint.href = anchor.href; document.head.append(hint); });
+    try {
+      const smallFiles = ['materials/introduction.json','materials/links.json','materials/experience.json','materials/projects/overview.json','materials/resume.json'];
+      await Promise.all(smallFiles.map(path => fetch(fromRoot(path))));
+      const indexResponse = await fetch(fromRoot('materials/projects/index.json'));
+      if (!indexResponse.ok) return;
+      const folders = await indexResponse.json();
+      await Promise.all(folders.map(async folder => {
+        const response = await fetch(fromRoot(`materials/projects/${folder}/info.json`));
+        if (!response.ok) return;
+        const info = await response.json();
+        const markdownFiles = Object.values(info).filter(value => value && typeof value === 'object' && typeof value.markdown === 'string').map(value => value.markdown);
+        await Promise.all(markdownFiles.map(path => fetch(fromRoot(path))));
+      }));
+    } catch { /* Prefetching is optional; normal page loading remains the fallback. */ }
+  };
+  if ('requestIdleCallback' in window) requestIdleCallback(warmCache, { timeout: 1000 }); else window.setTimeout(warmCache, 350);
 }
 
 function validateIntro(intro) { for (const key of ['name','title']) requireText(intro[key], `materials/introduction.json → ${key}`); if (intro.photo && !intro.photo.startsWith('TODO:')) safeURL(intro.photo, 'materials/introduction.json → photo'); }
 function validateLinks(links) { requireArray(links, 'materials/links.json'); links.forEach((link, i) => { const field = `materials/links.json → item ${i + 1}`; requireText(link.label, `${field}.label`); requireText(link.url, `${field}.url`); if (!link.url.startsWith('TODO:')) safeURL(link.url, `${field}.url`, true); }); }
 
-async function renderAbout(intro) {
-  const links = await readJSON('materials/links.json'); validateLinks(links); requireRichText(intro.bio, 'materials/introduction.json → bio'); intro.bio = await resolveRichText(intro.bio, 'materials/introduction.json → bio');
+async function renderAbout(intro, links) {
+  validateLinks(links); requireRichText(intro.bio, 'materials/introduction.json → bio'); intro.bio = await resolveRichText(intro.bio, 'materials/introduction.json → bio');
   $('profile-name').textContent = intro.name; $('profile-role').textContent = intro.title; $('profile-bio').replaceChildren(...richText(intro.bio).childNodes); $('profile-initials').textContent = initials(intro.name);
   if (intro.photo && !intro.photo.startsWith('TODO:')) { $('profile-photo').src = fromRoot(intro.photo); $('profile-photo').alt = `Portrait of ${intro.name}`; $('profile-photo').hidden = false; $('profile-initials').hidden = true; }
   const featured = new Set(['linkedin','github']); for (const item of links.filter(link => !link.url.startsWith('TODO:') && featured.has(link.label.toLowerCase()))) { const a = make('a', 'button dark-button', item.label); a.href = normalizeLink(item.url); a.target = '_blank'; a.rel = 'noopener noreferrer'; $('profile-actions').append(a); }
 }
 
-async function renderExperience() {
-  const items = await readJSON('materials/experience.json'); requireArray(items, 'materials/experience.json');
+async function renderExperience(items) {
+  requireArray(items, 'materials/experience.json');
   for (const [i, item] of items.entries()) { const field = `materials/experience.json → item ${i + 1}`; for (const key of ['role','company','period']) requireText(item[key], `${field}.${key}`); item.description = await resolveRichText(item.description, `${field}.description`); const card = make('article', 'experience-card'); card.append(make('h3', 'experience-company', item.company), make('p', 'experience-role', item.role), richText(item.description)); const meta = [item.location,item.period].filter(Boolean).join(' | '); if (meta) card.append(make('p','experience-meta',meta)); $('experience-list').append(card); }
 }
 
@@ -83,8 +107,8 @@ function renderMedia(items, target) {
   for (const item of items) { const figure=make('figure','media'); const media=document.createElement(item.type==='image'?'img':item.type); if(item.type==='image'){media.src=fromRoot(item.src);media.alt=item.title;media.loading='lazy'} if(item.type==='video'){media.src=fromRoot(item.src);media.controls=true;media.playsInline=true;media.preload='metadata';if(item.poster)media.poster=fromRoot(item.poster);if(item.captions){const track=document.createElement('track');track.kind='captions';track.src=fromRoot(item.captions);track.srclang=item.language||'en';track.label=item.captionLabel||'Captions';media.append(track)}} if(item.type==='iframe'){media.dataset.src=fromRoot(item.src);media.title=item.title;media.loading='lazy'} figure.append(media);if(item.caption)figure.append(make('figcaption','',item.caption));target.append(figure); }
 }
 
-async function renderProjects() {
-  const [overview, projects] = await Promise.all([readJSON('materials/projects/overview.json'), readProjects()]); requireText(overview.title,'materials/projects/overview.json → title'); overview.description=await resolveRichText(overview.description,'materials/projects/overview.json → description'); $('projects-title').textContent=overview.title; $('projects-description').replaceChildren(...richText(overview.description).childNodes);
+async function renderProjects([overview, projects]) {
+  requireText(overview.title,'materials/projects/overview.json → title'); overview.description=await resolveRichText(overview.description,'materials/projects/overview.json → description'); $('projects-title').textContent=overview.title; $('projects-description').replaceChildren(...richText(overview.description).childNodes);
   const ids=new Set();
   for (const project of projects) {
     for(const key of ['id','title','category'])requireText(project[key],`${project._source}.${key}`);for(const key of ['summary','challenge','contribution','result'])project[key]=await resolveRichText(project[key],`${project._source}.${key}`);if(ids.has(project.id))throw new Error(`${project._source}: duplicate project ID.`);ids.add(project.id);requireArray(project.tags,`${project._source}.tags`);requireArray(project.media,`${project._source}.media`);
@@ -98,9 +122,16 @@ async function renderProjects() {
   }
 }
 
-async function renderResume(intro) { const resume=await readJSON('materials/resume.json');requireText(resume.file,'materials/resume.json → file');requireText(resume.downloadLabel,'materials/resume.json → downloadLabel');if(resume.file.startsWith('TODO:'))return;safeMaterialPath(resume.file,'materials/resume.json → file','.pdf');const path=fromRoot(resume.file),frame=document.createElement('iframe');frame.src=path;frame.title=`${intro.name} résumé`;frame.loading='lazy';$('resume-viewer').replaceChildren(frame);$('resume-download').href=path;$('resume-download').download='';$('resume-download').textContent=resume.downloadLabel;$('resume-download').hidden=false; }
+async function renderResume(intro, resume) { requireText(resume.file,'materials/resume.json → file');requireText(resume.downloadLabel,'materials/resume.json → downloadLabel');if(resume.file.startsWith('TODO:'))return;safeMaterialPath(resume.file,'materials/resume.json → file','.pdf');const path=fromRoot(resume.file),frame=document.createElement('iframe');frame.src=path;frame.title=`${intro.name} résumé`;frame.loading='lazy';$('resume-viewer').replaceChildren(frame);$('resume-download').href=path;$('resume-download').download='';$('resume-download').textContent=resume.downloadLabel;$('resume-download').hidden=false; }
 
-async function renderContact() { const links=await readJSON('materials/links.json');validateLinks(links);for(const item of links.filter(link=>!link.url.startsWith('TODO:')&&!['résumé','resume'].includes(link.label.toLowerCase()))){const a=make('a','contact-item');a.href=normalizeLink(item.url);if(/^https?:/i.test(a.href)){a.target='_blank';a.rel='noopener noreferrer'}a.append(make('span','contact-label',item.label),make('span','contact-value',item.display||displayLink(item.url)));$('contact-list').append(a)} }
+async function renderContact(links) { validateLinks(links);for(const item of links.filter(link=>!link.url.startsWith('TODO:')&&!['résumé','resume'].includes(link.label.toLowerCase()))){const a=make('a','contact-item');a.href=normalizeLink(item.url);if(/^https?:/i.test(a.href)){a.target='_blank';a.rel='noopener noreferrer'}a.append(make('span','contact-label',item.label),make('span','contact-value',item.display||displayLink(item.url)));$('contact-list').append(a)} }
 
-async function start() { const intro=await readJSON('materials/introduction.json');validateIntro(intro);renderChrome(intro);if(pageName==='about')await renderAbout(intro);else if(pageName==='experience')await renderExperience();else if(pageName==='projects')await renderProjects();else if(pageName==='resume')await renderResume(intro);else if(pageName==='contact')await renderContact();else throw new Error(`Unknown page: ${pageName}`);enablePageNavigation();revealPage(); }
+async function start() {
+  renderNavigation(); enablePageNavigation();
+  const introPromise = readJSON('materials/introduction.json');
+  const pageDataPromise = pageName === 'about' || pageName === 'contact' ? readJSON('materials/links.json') : pageName === 'experience' ? readJSON('materials/experience.json') : pageName === 'projects' ? Promise.all([readJSON('materials/projects/overview.json'), readProjects()]) : pageName === 'resume' ? readJSON('materials/resume.json') : Promise.reject(new Error(`Unknown page: ${pageName}`));
+  const [intro, pageData] = await Promise.all([introPromise, pageDataPromise]); validateIntro(intro); renderChrome(intro);
+  if(pageName==='about')await renderAbout(intro,pageData);else if(pageName==='experience')await renderExperience(pageData);else if(pageName==='projects')await renderProjects(pageData);else if(pageName==='resume')await renderResume(intro,pageData);else if(pageName==='contact')await renderContact(pageData);
+  revealPage();
+}
 start().catch(error=>{const loading=$('profile-name');if(loading)loading.textContent='Content needs attention';$('content-error').textContent=error.message;$('content-error').hidden=false;revealPage();console.error(error)});

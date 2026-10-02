@@ -18,8 +18,8 @@ button,a{-webkit-tap-highlight-color:transparent}
 .floating-nav .contact-nav:hover,.floating-nav .contact-nav[aria-current=page]{background:#3b3b3b}
 .page-section{padding-block:110px;border-bottom:1px solid var(--line)}
 main,footer{opacity:0}
-html.content-ready main,html.content-ready footer{animation:content-in 220ms cubic-bezier(.2,.7,.2,1) both}
-html.page-leaving main,html.page-leaving footer{animation:none;opacity:0;transition:opacity 120ms ease-in}
+html.content-ready main,html.content-ready footer{animation:content-in 130ms cubic-bezier(.2,.7,.2,1) both}
+html.page-leaving main,html.page-leaving footer{animation:none;opacity:0;transition:opacity 30ms linear}
 .standalone-section{min-height:calc(100vh - 70px);padding-top:155px}
 .content-error{margin-top:110px;padding:18px;border:1px solid #c02626;border-radius:12px;background:#fff5f5;color:#991b1b;overflow-wrap:anywhere}
 .about-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:145px 24px 90px}
@@ -94,8 +94,8 @@ footer{display:flex;justify-content:space-between;gap:24px;padding-block:28px;co
 @media(max-width:760px){html{scroll-padding-top:90px}
 .page-width{width:min(100% - 32px,980px)}
 .floating-nav{top:12px;width:calc(100% - 24px);overflow-x:auto}
-.floating-nav nav{width:max-content}
-.floating-nav a{padding:8px 9px;font-size:12px}
+.floating-nav nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%}
+.floating-nav a{padding:8px 3px;font-size:12px;text-align:center}
 .page-section{padding-block:80px}
 .about-section{padding-top:120px}
 .portrait{width:145px;height:145px}
